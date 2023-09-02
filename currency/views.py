@@ -8,7 +8,7 @@ import multiprocessing
 
 class GetCurrencyData(APIView):
     def get(self, request, *args, **kwargs):
-        currency_queryset = Currency.objects.all()
+        currency_queryset = Currency.objects.filter(is_allowed=True)
         currency_list = list(currency_queryset.values_list('name', flat=True))
         currency_persian_list = list(currency_queryset.values_list('persian_name', flat=True))
 
@@ -33,7 +33,9 @@ class GetCurrencyData(APIView):
 
         currency_data_list = [
             {'id': str(i + 1), 'name': name, 'persian_name': persian_name, 'price': price, 'change': change,
-             'status': 'pos' if change and change[0] == '+' else 'neg' if change and change[0] == '-' else None}
+             'status': 'pos' if change and (
+                         change[0] == '+' or not any(char in change for char in '+-')) else 'neg' if change and change[
+                 0] == '-' else None}
             for i, (name, persian_name, price, change) in
             enumerate(zip(currency_list, currency_persian_list, prices, changes))]
 
