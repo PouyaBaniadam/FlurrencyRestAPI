@@ -25,16 +25,18 @@ class GetCurrencyData(APIView):
             parts = data.split()
             if len(parts) == 2:
                 price, change = parts
-                prices.append(price.replace(',', ''))
+                formatted_price = '{:,}'.format(int(price.replace(',', '')))
+                prices.append(formatted_price)
                 changes.append(change)
             else:
                 prices.append(None)
                 changes.append(None)
 
         currency_data_list = [
-            {'id': str(i + 1), 'name': name, 'persian_name': persian_name, 'price': price, 'change': change,
+            {'id': str(i + 1), 'name': name, 'persian_name': persian_name, 'price': price or "-",
+             'changes': change or "-",
              'status': 'pos' if change and (
-                         change[0] == '+' or not any(char in change for char in '+-')) else 'neg' if change and change[
+                     change[0] == '+' or not any(char in change for char in '+-')) else 'neg' if change and change[
                  0] == '-' else None}
             for i, (name, persian_name, price, change) in
             enumerate(zip(currency_list, currency_persian_list, prices, changes))]
